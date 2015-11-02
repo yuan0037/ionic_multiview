@@ -1,0 +1,11 @@
+<ion-view view-title="Settings">
+    <ion-content>
+        <h1>Setting</h1>
+        
+        <div>vibrateOnItemComplete: {{vibrateOnItemComplete}} notifyWhenListComplete: {{notifyWhenListComplete}}
+            <ion-toggle ng-model="vibrateOnItemComplete" ng-checked="{{vibrateOnItemComplete}}" toggle-class="toggle-calm" ng-change="applySettings()">Vibrate on item complete</ion-toggle>
+        <ion-toggle ng-model="notifyWhenListComplete" ng-checked="{{notifyWhenListComplete}}" toggle-class="toggle-calm" ng-change="applySettings()">Notify when list completed</ion-toggle>
+           
+        </div>
+    </ion-content>
+</ion-view>
