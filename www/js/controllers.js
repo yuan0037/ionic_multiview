@@ -33,25 +33,41 @@ angular.module('starter.controllers', ['ionic.utils', 'ionic'])
 
 .controller('SettingsCtrl', function ($scope, $stateParams, $localstorage) {
 
-    $scope.vibrateOnItemComplete = $localstorage.get('vibrateOnItemComplete');
-    $scope.notifyWhenListComplete = $localstorage.get('notifyWhenListComplete');
+    $scope.vibrateOnItemComplete = ($localstorage.get('vibrateOnItemComplete') === 'true');
+    $scope.notifyWhenListComplete = ($localstorage.get('notifyWhenListComplete')=== 'true');
 
-    $scope.applySettings = function () {
+    $scope.applySettingsForVibration = function () {
+        if ($scope.vibrateOnItemComplete === false)
+            $scope.vibrateOnItemComplete = true;
+        else 
+            $scope.vibrateOnItemComplete = false;    
         $localstorage.set('vibrateOnItemComplete', this.vibrateOnItemComplete);
+    };
+    
+    $scope.applySettingsForNotification = function () {
+        if ($scope.notifyWhenListComplete === false)
+            $scope.notifyWhenListComplete = true;
+        else
+            $scope.notifyWhenListComplete = false;
         $localstorage.set('notifyWhenListComplete', this.notifyWhenListComplete);
 
     };
+    
 })
 
 .controller('PlaylistCtrl', function ($scope, $stateParams, $localstorage, $cordovaVibration, $cordovaLocalNotification) {
-    console.log($scope);
-    console.log($stateParams);
+
     $scope.list_id = $stateParams.playlistId;
-
-    $scope.data = {
-        showDelete: false
-    };
-
+    $scope.titleOfList = "";
+    if ($scope.list_id === "0") {
+        $scope.titleOfList = "Shopping List";
+    } else if ($scope.list_id === "1") {
+        $scope.titleOfList = "To Do List";
+    } else if ($scope.list_id == "2") {
+        $scope.titleOfList = "To Sell List";
+    }
+    
+    //------initial values for each list -----
     $scope.initial_list_shopping = [{
         name: "Milk",
         completed: false
@@ -83,7 +99,7 @@ angular.module('starter.controllers', ['ionic.utils', 'ionic'])
         completed: false
     }];
 
-    //----set up default values for each list ---
+    //----set up default values for each list if the list is empty when loading---
     $scope.list_shopping = $localstorage.getObject('list_shopping');
     $scope.list_todo = $localstorage.getObject('list_todo');
     $scope.list_tosell = $localstorage.getObject('list_tosell');
@@ -133,26 +149,12 @@ angular.module('starter.controllers', ['ionic.utils', 'ionic'])
 
         $scope.notifyWhenListComplete = $localstorage.get('notifyWhenListComplete');
 
-        if ($scope.notifyWhenListComplete) {
-            
-            var titleOfList = "";
-            if (list_id ==="0")
-                {
-                   titleOfList = "Shopping List"; 
-                }
-            else if (list_id ==="1")
-                {
-                    titleOfList = "To Do List";
-                }
-            else if (list_id == "2")
-                {
-                    titleOfList = "To Sell List";
-                }
+        if ($scope.notifyWhenListComplete === "true") {
             if ($scope.current_list.length === 0) {
                 $cordovaLocalNotification.schedule({
                     id: 1,
                     title: 'MultiView yuan0037 Notification',
-                    text: titleOfList + " is empty",
+                    text: $scope.titleOfList + " is empty",
                     data: {
                         customProperty: 'list empty'
                     }
@@ -164,10 +166,9 @@ angular.module('starter.controllers', ['ionic.utils', 'ionic'])
     };
 
     $scope.markItemDone = function (index, list_id, isDone) {
-        console.log("markItemDone invoked");
         $scope.current_list[index].completed = isDone;
         $scope.vibrateOnItemComplete = $localstorage.get('vibrateOnItemComplete');
-        if ($scope.vibrateOnItemComplete) {
+        if ($scope.vibrateOnItemComplete === "true") {
             $cordovaVibration.vibrate(100);
         }
         $scope.saveToStorage(list_id);
